@@ -14,6 +14,7 @@
             italic: "Kursiv",
             underline: "Unterstrichen"
         },
+        columnize: 'Kolumnieren',
         lists: {
             unordered: "Ungeordnete Liste",
             ordered: "Geordnete Liste",

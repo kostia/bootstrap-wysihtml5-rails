@@ -113,6 +113,17 @@
                 "<li><div class='wysihtml5-colors' data-wysihtml5-command-value='orange'></div><a class='wysihtml5-colors-title' data-wysihtml5-command='foreColor' data-wysihtml5-command-value='orange'>" + locale.colours.orange + "</a></li>" +
               "</ul>" +
             "</li>";
+        },
+
+        columnize: function(locale, options) {
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return '<li>' +
+              '<div class="btn-group">' +
+                '<a class="btn'+size+'" data-wysihtml5-command="columnize" title="'+locale.columnize+'" tabindex="-1">' +
+                  '<i class="icon icon-th-large"></i>' +
+                '</a>' +
+              '</div>' +
+            '</li>';
         }
     };
 
@@ -147,7 +158,7 @@
 
         createEditor: function(options) {
             options = options || {};
-            
+
             // Add the toolbar to a clone of the options object so multiple instances
             // of the WYISYWG don't break because "toolbar" is already defined
             options = $.extend(true, {}, options);
@@ -194,6 +205,10 @@
 
                     if(key === "image") {
                         this.initInsertImage(toolbar);
+                    }
+
+                    if (key === 'columnize') {
+                      this.initColumnize(toolbar);
                     }
                 }
             }
@@ -280,6 +295,35 @@
                     return true;
                 }
             });
+        },
+
+        initColumnize: function(toolbar) {
+          toolbar.find('a[data-wysihtml5-command=columnize]').click(function() {
+            if (!$(this).hasClass('wysihtml5-command-active')) {
+              var selectedNode = self.editor.composer.selection.getSelectedNode();
+              var cssClass = 'col-md-6';
+
+              switch (selectedNode.nodeName) {
+                case '#text':
+                  var parentNode = $(selectedNode.parentNode);
+                  if (parentNode.get(0).nodeName === 'DIV') {
+                    $(parentNode).toggleClass(cssClass);
+                  } else {
+                    self.editor.composer.commands.exec('formatBlock', 'div', cssClass);
+                  }
+                  break;
+                case 'DIV':
+                  $(selectedNode).toggleClass(cssClass);
+                  break;
+                default:
+                  self.editor.composer.commands.exec('formatBlock', 'div', cssClass);
+              }
+
+              return false;
+            }
+
+            return true;
+          });
         },
 
         initInsertLink: function(toolbar) {
@@ -379,7 +423,7 @@
             return methods.init.apply( this, arguments );
         } else {
             $.error( 'Method ' +  method + ' does not exist on jQuery.wysihtml5' );
-        }    
+        }
     };
 
     $.fn.wysihtml5.Constructor = Wysihtml5;
@@ -392,6 +436,7 @@
         "html": false,
         "link": true,
         "image": true,
+        columnize: true,
         events: {},
         parserRules: {
             classes: {
@@ -411,7 +456,8 @@
                 "wysiwyg-color-blue" : 1,
                 "wysiwyg-color-teal" : 1,
                 "wysiwyg-color-aqua" : 1,
-                "wysiwyg-color-orange" : 1
+                "wysiwyg-color-orange" : 1,
+                "col-md-6" : 1
             },
             tags: {
                 "b":  {},
